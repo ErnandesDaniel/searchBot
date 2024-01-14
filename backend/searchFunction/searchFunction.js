@@ -11,9 +11,9 @@ const { Worker }=require('worker_threads');
 function searchFunction(){
 	
 	
-	//let AvitoWorker = new Worker('./searchFunction/Avito/Avito_SearchFunction.js');
+	let AvitoWorker = new Worker('./searchFunction/Avito/Avito_SearchFunction.js');
 
-	//let FunPayWorker = new Worker('./searchFunction/FunPay/FunPay_SearchFunction.js');
+	let FunPayWorker = new Worker('./searchFunction/FunPay/FunPay_SearchFunction.js');
 	
 }
 

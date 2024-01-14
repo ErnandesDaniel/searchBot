@@ -298,15 +298,12 @@ href='${req.headers.origin}/autorization/confirmRegistration?confirmationToken=$
 		
 	}
 	
-	
-	
-
 
     async getAuthorizationLink(req, res){
 		
     	//Получаем данные из объекта запроса пользователя
 		let data=req.query;
-
+		
 		//Определяем ожидаемую схему для проверки объекта данных запроса
 		const schema = {
 			
@@ -334,48 +331,59 @@ href='${req.headers.origin}/autorization/confirmRegistration?confirmationToken=$
 		}else{
 
 			//Получаем email из запроса
-			let email=req.query.email;
-		
+			let email=data.email;
+			
 			//Изменяем все буквы в email на строчные
 			email=email.toLowerCase();
-		
-			//Получаем данные пользователя (если пользователя нет, то получаем пустой ответ)
-			const user=await userModel.findOne({
-								
-				attributes:['emailHasBeenConfirmed','password', 'id'],
-								
-				where:{email:email}
-							
-			});	
 			
-			if(user==null){
+			//Проверяем email на корректность
+			//Если email некорректный, то отправляем сообщение об ошибке
+			if(emailValidator.validate(email)==false){
 				
 				//Отправляем ответ пользователю о том, что email некорректный
-				res.send({errorExist:true, actionMessage:'userIsNotExist'});
+				res.send({errorExist:true, actionMessage:'invalidEmail'});
+			
+			//Иначе дальше продолжаем работу:
+			}else{			
+
+				//Получаем данные пользователя (если пользователя нет, то получаем пустой ответ)
+				const user=await userModel.findOne({
+									
+					attributes:['emailHasBeenConfirmed','name', 'id'],
+									
+					where:{email:email}
+								
+				});	
 				
-			}else{
-				
-				if(user.emailHasBeenConfirmed==true){
+				if(user==null){
 					
-					//Если пользователем отправлен пароль совпадающей с паролем в базе данных,
-					//то отправляем пользователю токен доступа
-					if(password==user.password){
+					//Отправляем ответ пользователю о том, что email некорректный
+					res.send({errorExist:true, actionMessage:'userIsNotExist'});
+					
+				}else{
+					
+					if(user.emailHasBeenConfirmed==true){
+						
+						//Если пользователем отправлен пароль совпадающей с паролем в базе данных,
+						//то отправляем пользователю токен доступа
 
 						//Получаем id пользователя
 						let id=user.id;
 						
+						let name=user.name;
+							
 						//Создаем код подтвеждения входа
 						let loginConfirmationCode=createConfirmationCode();
-						
+							
 						//Создаем токен для входа
 						let loginConfirmationToken=tokens.createToken({
-							
+								
 							id:Number(id),
-							
+								
 							loginConfirmationCode:loginConfirmationCode,
-							
+								
 							iat:Date.now(),
-							
+								
 						});
 
 						//Изменяем данные о пользователе - имя пользователя и пароль, так как он еще неактивен 
@@ -383,48 +391,46 @@ href='${req.headers.origin}/autorization/confirmRegistration?confirmationToken=$
 						await user.update({
 
 							loginConfirmationCode:loginConfirmationCode,
-							
+								
 						});
-						
+							
 						let AuthorizationLinkLetter=`
-					
-					<h1>Вход по магической ссылке</h1>
-					<h2>Привет, ${name}</h2>
-					<p>Можете авторизоваться, перейдя по ссылке ниже</p>
-					<a 
-					
-href='${req.headers.origin}/autorization/logInByLink?loginConfirmationToken=${loginConfirmationToken}'>
-					Войти по ссылке</a>
-					
-					`;				
-					
+						
+						<h1>Вход по магической ссылке</h1>
+						<h2>Привет, ${name}</h2>
+						<p>Можете авторизоваться, перейдя по ссылке ниже</p>
+						<a 
+						
+	href='${req.headers.origin}/autorization/logInByLink?loginConfirmationToken=${loginConfirmationToken}'>
+						Войти по ссылке</a>
+						
+						`;				
+						
 						//Отправляем ссылку для входа в приложение на почту
 						await sendConfirmationCode(email, 'Вход по одноразовой ссылке', AuthorizationLinkLetter);						
-						
+							
 						//Отправляем ответ пользователю с токеном авторизации
-						res.send({errorExist:false, actionMessage:'tokenWasCreated', content:{token:token}});
-					
-					//Если пароль, отправленный пользователем, не совпадает с паролем в базе данных,
-					//то сообщаем пользователю об ошибке
+						res.send({errorExist:false, actionMessage:'checkEmail'});
+						
+						
+					}else if(user.emailHasBeenConfirmed==false){
+						
+						//Отправляем ответ пользователю о том, что email некорректный
+						res.send({errorExist:true, actionMessage:'userIsNotExist'});
+						
 					}
 					
-				}else if(user.emailHasBeenConfirmed==false){
-					
-					//Отправляем ответ пользователю о том, что email некорректный
-					res.send({errorExist:true, actionMessage:'userIsNotExist'});
-					
 				}
-				
+			
 			}
-
-		}
+		}	
 		
 	}
 
     async logInByLink(req, res){
 
     	//Получаем данные из объекта запроса пользователя
-		let data=req.body;
+		let data=req.query;
 
 		//Определяем ожидаемую схему для проверки объекта данных запроса
 		const schema = {
@@ -487,6 +493,17 @@ href='${req.headers.origin}/autorization/logInByLink?loginConfirmationToken=${lo
 				//Если порльзователь все еще не подтвержден
 				}else if(user.emailHasBeenConfirmed==true){
 					
+					
+					
+					
+					//console.log(loginConfirmationCode);
+					
+					//console.log(user.loginConfirmationCode==loginConfirmationCode);
+					
+					
+					
+					
+					
 					//Если присланный код подтверждения равен коду подтверждения в базе данных
 					if(loginConfirmationCode==user.loginConfirmationCode){
 						
@@ -497,7 +514,7 @@ href='${req.headers.origin}/autorization/logInByLink?loginConfirmationToken=${lo
 						//Создаем токен
 						let token=tokens.createToken({
 							
-							id:Number(id),
+							id:Number(idOfUser),
 							
 							iat:Date.now(),
 							
@@ -525,6 +542,7 @@ href='${req.headers.origin}/autorization/logInByLink?loginConfirmationToken=${lo
 			}
 		
 		}
+		
 		
 	}
 	
@@ -627,7 +645,7 @@ href='${req.headers.origin}/autorization/logInByLink?loginConfirmationToken=${lo
 		}
 		
 	};
-		
+	
 	async recoverPassword(req, res){
 		
 		//Получаем данные из объекта запроса пользователя
@@ -679,17 +697,17 @@ href='${req.headers.origin}/autorization/logInByLink?loginConfirmationToken=${lo
 					let name=user.name;
 					
 					//Создаем новый код подтвеждения
-					let confirmationCode=createConfirmationCode();
+					let changePasswordConfirmationCode=createConfirmationCode();
 					
 					//Изменяем код подтверждения пользователя в базе данных
-					user.update({confirmationCode:confirmationCode});
+					await user.update({changePasswordConfirmationCode:changePasswordConfirmationCode});
 					
 					//Создаем токен подтверждения
 					let confirmationToken=tokens.createToken({
 							
 						id:Number(user.id),
 						
-						confirmationCode:confirmationCode,
+						changePasswordConfirmationCode:changePasswordConfirmationCode,
 							
 						iat:Date.now(),
 							
@@ -701,7 +719,7 @@ href='${req.headers.origin}/autorization/logInByLink?loginConfirmationToken=${lo
 					<h2>Привет, ${name}</h2>
 					<p>Для смены пароля перейдите по ссылке ниже:</p>
 					<a 
-					href=${req.headers.origin}/autorization/createNewPassword?confirmationToken=${confirmationToken}>
+					href=${req.headers.origin}/autorization/createNewPassword?changePasswordConfirmationToken=${confirmationToken}>
 					Сменить пароль</a>
 					
 					`;
@@ -709,7 +727,7 @@ href='${req.headers.origin}/autorization/logInByLink?loginConfirmationToken=${lo
 					sendConfirmationCode(email, 'Смена пароля', passwordChangeLetter);
 
 					//Отправляем ответ пользователю о том, что нужно проверить email
-					res.send({errorExist:false, actionMessage:'checkEmail'});	
+					res.send({errorExist:false, actionMessage:'checkEmail'});
 					
 				}
 					
@@ -733,11 +751,11 @@ href='${req.headers.origin}/autorization/logInByLink?loginConfirmationToken=${lo
 
 				newPassword:{ type: 'string', minLength: 8,},
 				
-				confirmationToken:{ type: 'string'},
+				changePasswordConfirmationToken:{ type: 'string'},
 				
 			},
 			
-			required: ['newPassword', 'confirmationToken'],
+			required: ['newPassword', 'changePasswordConfirmationToken'],
 
 		}
 		
@@ -754,23 +772,23 @@ href='${req.headers.origin}/autorization/logInByLink?loginConfirmationToken=${lo
 			
 			let newPassword=data.newPassword;
 		
-			let confirmationToken=data.confirmationToken;
+			let changePasswordConfirmationToken=data.changePasswordConfirmationToken;
 			
 			//Проверяем токен подтверждения на валидность
-			if(tokens.checkToken(confirmationToken)=='TokenIsValid'){
+			if(tokens.checkToken(changePasswordConfirmationToken)=='TokenIsValid'){
 			//Если токен валидный, то дальше обрабатываем ответ	
 			
 				//Декодируем токен
-				let decodedToken=tokens.getDecodedToken(confirmationToken);
+				let decodedToken=tokens.getDecodedToken(changePasswordConfirmationToken);
 
 				let idOfUser=decodedToken.id;
 				
-				let confirmationCode=decodedToken.confirmationCode;
+				let changePasswordConfirmationCode=decodedToken.changePasswordConfirmationCode;
 				
 				//Находим пользователя в базе данных
 				const user=await userModel.findOne({
 									
-					attributes:['id','emailHasBeenConfirmed','confirmationCode'],
+					attributes:['id','emailHasBeenConfirmed','changePasswordConfirmationCode'],
 									
 					where:{id:idOfUser},
 								
@@ -800,16 +818,16 @@ href='${req.headers.origin}/autorization/logInByLink?loginConfirmationToken=${lo
 							
 						//Если код подтверждения смены пароля равен коду подтверждения в базе данных
 						//то меняем пароль в базе данных
-						if(confirmationCode==user.confirmationCode){
+						if(changePasswordConfirmationCode==user.changePasswordConfirmationCode){
 
 							//Изменяем код подтверждения пользователя в базе данных
-							user.update({password:newPassword});
+							await user.update({password:newPassword, changePasswordConfirmationCode:null});
 					
 							//Отправляем ответ пользователю о том, что нужно проверить email
 							res.send({errorExist:false, actionMessage:'passwordWasUpdated'});	
 
 						//Иначе сообщаем пользователю, что код подтверждения неверный	
-						}else if(confirmationCode!=user.confirmationCode){
+						}else if(changePasswordConfirmationCode!=user.changePasswordConfirmationCode){
 								
 							//Отправляем ответ пользователю о том, что нужно проверить email
 							res.send({errorExist:true, actionMessage:'invalidConfirmationCode'});
@@ -896,7 +914,7 @@ href='${req.headers.origin}/autorization/logInByLink?loginConfirmationToken=${lo
 		});
 		
 	};
-
+	
 	async getMainData(req, res){
 
 		//Получаем токен из объекта запроса пользователя

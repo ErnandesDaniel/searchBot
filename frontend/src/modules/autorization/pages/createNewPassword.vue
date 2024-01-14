@@ -6,15 +6,6 @@
 
     <input class='specialInput' type='text' placeholder='Новый пароль еще раз' v-model='newPasswordSecond'/>
 
-    <input class='specialInput' type='text' 
-
-      placeholder='Код подтверждения' 
-   
-      v-model='confirmationCode'
-
-    />
-
-
     <div class='createNewPassword' @click='createNewPassword'>Установить новый пароль</div>
 
     <div class='errorBlock' v-if='errorMessage!=""'>{{errorMessage}}</div>
@@ -47,11 +38,19 @@
 
         newPasswordSecond:'',
 
-        confirmationCode:'',
+        changePasswordConfirmationToken:'',
 
         errorMessage:'',
 
       }
+    },
+
+    created(){
+
+      this.changePasswordConfirmationToken=this.$route.query.changePasswordConfirmationToken;
+
+      console.log(this.changePasswordConfirmationToken);
+
     },
 
 
@@ -65,12 +64,6 @@
       },
 
       newPasswordSecond(){
-
-        this.errorMessage='';
-
-      },
-
-      confirmationCode(){
 
         this.errorMessage='';
 
@@ -91,10 +84,6 @@
 
           this.errorMessage='Введите пароль еще раз';
 
-        }else if(this.confirmationCode.length<1){
-
-          this.errorMessage='Введите код подтверждения';
-
         }else if(this.newPassword!=this.newPasswordSecond){
 
           this.errorMessage='Пароли должны совпадать';
@@ -103,11 +92,9 @@
 
           let response =await createNewPassword({
 
-            email:this.autorizationStore.email,
-
             newPassword:this.newPassword,
 
-            confirmationCode:this.confirmationCode,
+            changePasswordConfirmationToken:this.changePasswordConfirmationToken,
 
           });
 
@@ -163,6 +150,27 @@
     margin-bottom:20px;
     text-align:center;
     text-align:center;
+
+    border-radius:25px;
+    min-width:250px;
+    width:auto;
+    padding-left:10px;
+    padding-right:10px;
+    height:50px;
+    min-height:50px;
+    background: #70A372;
+    border-radius:25px;
+    font-weight:700;
+    font-size:16px;
+    line-height:19px;
+    display: flex;
+    align-items: center;
+    justify-content:center;
+    text-align: center;
+    text-align:center;
+    color: rgba(0, 0, 0, 0.7);
+    margin-bottom:20px;
+    cursor:pointer;
 
   }
 

@@ -15,6 +15,8 @@ const userModel = sequelize.define('users',{
 	
 	loginConfirmationCode:{type: DataTypes.STRING},
 	
+	changePasswordConfirmationCode:{type: DataTypes.STRING},
+	
 });
 
 const TelegramChatsModel = sequelize.define('telegramChats',{

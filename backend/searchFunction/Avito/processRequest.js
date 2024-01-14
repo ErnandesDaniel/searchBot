@@ -56,21 +56,19 @@ async function processRequest(request){
 			let baseURL='https://www.avito.ru/';
 			
 			//Сортировка по дате:&s=104
-				
 			let searchURL=`${baseURL}all?p=${page}&q=${requestText}&s=104`;
 			
 			//Если есть ссылка на категорию, то она позволит уменьшить количество анализируемой продукции
-			if(request.linkWithData!=null || request.linkWithData!=''){
+			if(request.linkWithData!=''){
 			
 				baseURL=request.linkWithData;
 				
 				//Сортировка по дате:&s=104
-				
-				searchURL=`${baseURL}&p=${page}&s=104`;				
+				searchURL=`${baseURL}&p=${page}&s=104`;		
 				
 			}
 			
-			const browser=await puppeteer.launch({headless:false});
+			const browser=await puppeteer.launch({headless:true});
 
 			const searchPage=await browser.newPage();
 

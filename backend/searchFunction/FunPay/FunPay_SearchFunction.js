@@ -21,7 +21,7 @@ async function FunPay_SearchFunction(){
 			
 	}
 		
-	//setTimeout(FunPay_SearchFunction, 1000);
+	setTimeout(FunPay_SearchFunction, 5000);
 		
 	
 }

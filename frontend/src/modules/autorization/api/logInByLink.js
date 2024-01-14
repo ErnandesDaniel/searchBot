@@ -2,12 +2,12 @@
 import { axios } from '@/shared/axios.js'
 
 
-async function getAutorizationToken(email, password){
+async function logInByLink(loginConfirmationToken){
 
 		//Пытаемся отправить запрос на сервер
-		let response=await axios.get('users/getAuthorizationToken', {
+		let response=await axios.get('users/logInByLink', {
 
-			params:{email:email, password:password}
+			params:{loginConfirmationToken:loginConfirmationToken}
 					
 		});
 			
@@ -17,4 +17,4 @@ async function getAutorizationToken(email, password){
 
 }
 
-export { getAutorizationToken };
+export { logInByLink };

@@ -20,7 +20,7 @@ async function Avito_SearchFunction(){
 			
 	}
 		
-	//setTimeout(FunPay_SearchFunction, 1000);
+	setTimeout(Avito_SearchFunction, 5000);
 		
 	
 }

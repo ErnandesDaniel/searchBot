@@ -30,13 +30,13 @@
       return{
 
         
-        email:'Ernandes20@yandex.ru',
+        email:'',
 
-        password:'12345678',
+        password:'',
 
-        repeatPassword:'12345678',
+        repeatPassword:'',
 
-        name:'Даниэль',
+        name:'',
 
         errorMessage:'',
 
@@ -59,9 +59,9 @@
 
       },
 
-      password(){
+      repeatPassword(){
 
-        this.repeatPassword='';
+        this.errorMessage='';
 
       },
 

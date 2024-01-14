@@ -13,10 +13,8 @@ async function recoverPassword(email){
 		let response=await axios.post('users/recoverPassword', {email:email});
 		
 		if(response.data.errorExist==false && response.data.actionMessage=='checkEmail'){
-			
-			//setAutorizationData(email,'');
 	
-			//router.push({path: '/autorization/createNewPassword'});
+			router.push({path: '/autorization/needForChangePassword'});
 			
         }
 				

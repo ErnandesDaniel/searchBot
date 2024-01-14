@@ -5,6 +5,10 @@ import createNewPassword from './pages/createNewPassword.vue'
 import needForConfirmationEmail from './pages/needForConfirmationEmail.vue'
 import getAuthorizationLink from './pages/getAuthorizationLink.vue'
 import goToEmailToLogIn from './pages/goToEmailToLogIn.vue'
+import logInByLink from './pages/logInByLink.vue'
+import needForChangePassword from './pages/needForChangePassword.vue'
+
+
 
 
 export const routes = [
@@ -26,10 +30,14 @@ export const routes = [
       { path: 'createNewPassword', component:createNewPassword},
 
       { path: 'needForConfirmationEmail', component:needForConfirmationEmail},
+
+      { path: 'needForChangePassword', component:needForChangePassword},
       
       { path: 'getAuthorizationLink', component:getAuthorizationLink},
 
       { path: 'goToEmailToLogIn', component:goToEmailToLogIn},
+
+      { path: 'logInByLink', component:logInByLink},
 
     ],
 

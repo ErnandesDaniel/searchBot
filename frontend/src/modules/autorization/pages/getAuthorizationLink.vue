@@ -52,10 +52,8 @@
 
         }else{
 
-            //let response=await getAuthorizationLink(this.email);
+            let response=await getAuthorizationLink(this.email);
 
-
-/*
             if(response.data.errorExist==true){
 
               if(response.data.actionMessage=='invalidEmail'){
@@ -68,10 +66,12 @@
 
               }
 
+            }else if(response.data.actionMessage=='checkEmail'){
+
+              //Переходим на страницу входа
+              this.$router.replace({path: '/autorization/goToEmailToLogIn'});
+
             }
-
-
-*/
 
         }
 
