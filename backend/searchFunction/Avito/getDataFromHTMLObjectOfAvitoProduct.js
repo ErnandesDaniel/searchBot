@@ -29,7 +29,7 @@ function getDataFromHTMLObjectOfAvitoProduct(product_HTML_Element){
 	//Получаем строку с ценой продукта
 	let productPrice=getTextFromHTMLElement(productPrice_HTML_Element);
 
-	//Убараем из строки все символы кроме цифр
+	//Убираем из строки все символы кроме цифр
 	productPrice=productPrice.replace(/\D/g,'');
 
 	//Получаем цену продукта как число

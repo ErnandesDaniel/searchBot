@@ -234,8 +234,6 @@ import { deleteObject } from '../api/deleteObject.js';
 
       viewedObjectsList(){
 
-        console.log('Массив был изменен');
-
         return this.objectsList.filter((el)=>{
 
           return el.viewed==this.viewedMode;
@@ -303,29 +301,28 @@ import { deleteObject } from '../api/deleteObject.js';
 
       },
 
-
-
-
-
-
       async getObjectsList(){
+
+        let error=false;
 
         //await this.objectsList=
 
         if(this.currentPage==0){
 
-         let {
+          let response=await getObjects(this.siteName, this.requestId, 0, this.limit);
 
-            listOfObjects,
+          if (response.data.errorExist==false){
 
-            totalObjects,
+            let {
 
-            totalPages,
+              listOfObjects,
 
-            }=(await getObjects(this.siteName, this.requestId, 0, this.limit)).data.content;
+              totalObjects,
 
-            this.currentPage=this.currentPage+1;
+              totalPages,
 
+            }=response.data.content;
+            
             this.totalObjects=totalObjects;
 
             this.totalPages=totalPages;
@@ -334,14 +331,27 @@ import { deleteObject } from '../api/deleteObject.js';
 
             this.objectsList=listOfObjects;
 
+            this.currentPage=this.currentPage+1;
+
+          }
+
         }else if(this.currentPage<this.totalPages){
 
-          this.currentPage=this.currentPage+1;
+          let response=await getObjects(this.siteName, this.requestId, this.currentPage, this.limit);
 
-          let { listOfObjects }=(await getObjects(this.siteName, this.requestId, this.currentPage, this.limit)).data.content;
+          if (response.data.errorExist==false){
 
-          //Добавляем в массив объектов только что полученные
-          this.objectsList.push(...listOfObjects);
+            let {listOfObjects,}=response.data.content;
+
+            console.log(listOfObjects);
+
+            //Добавляем в массив объектов только что полученные
+            this.objectsList.push(...listOfObjects);
+
+            this.currentPage=this.currentPage+1;
+
+          }
+
 
         }
 

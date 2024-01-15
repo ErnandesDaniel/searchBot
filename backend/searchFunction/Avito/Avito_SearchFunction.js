@@ -20,7 +20,7 @@ async function Avito_SearchFunction(){
 			
 	}
 		
-	setTimeout(Avito_SearchFunction, 5000);
+	setTimeout(Avito_SearchFunction, 10000);
 		
 	
 }

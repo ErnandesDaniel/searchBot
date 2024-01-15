@@ -1,5 +1,5 @@
 
-const Ajv = require("Ajv");
+const Ajv = require("ajv");
 
 const ajv = new Ajv();
 

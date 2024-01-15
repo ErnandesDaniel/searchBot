@@ -139,11 +139,7 @@ import { useRequestsStore } from '../stores/requests.js';
         //Переходим на сатринцу со списком товаров
         this.$router.push({
 
-          path:`/siteList/${this.siteName}/${requestId}/objectsList/`, 
-
-          replace:true
-
-        });
+          path:`/siteList/${this.siteName}/${requestId}/objectsList/`,});
 
       },
 

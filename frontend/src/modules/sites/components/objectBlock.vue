@@ -146,8 +146,6 @@ export default{
 
       var formattedTime = `${day}.${month}.${year}`
 
-      console.log(formattedTime);
-
       return formattedTime;
 
     },

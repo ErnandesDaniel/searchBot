@@ -12,8 +12,7 @@ const {
 
 }=require('./HTML_Parsing_Functions.js');
 
-const puppeteer = require('puppeteer');
-
+const { chromium }=require('playwright');
 
 //Подключаем файл функции обработки запросов
 const getDataFromHTMLObjectOfAvitoProduct = require('./getDataFromHTMLObjectOfAvitoProduct.js');
@@ -68,16 +67,18 @@ async function processRequest(request){
 				
 			}
 			
-			const browser=await puppeteer.launch({headless:true});
-
-			const searchPage=await browser.newPage();
-
+			//Запуск браузера
+			const browser = await chromium.launch({headless:true,});
+			
+			//Откроем страницу
+			const searchPage = await browser.newPage();
+			
 			//Переходим на страницу поиска
 			await searchPage.goto(searchURL,{waitUntil:'domcontentloaded'});
 			
 			//Получаем весь HTML-контент на странице
 			let searchPageContent=await searchPage.content();
-
+			
 			//Переносим HTML строку в JSDOM
 			const searchPageDOM=new JSDOM(searchPageContent);
 					
@@ -131,8 +132,6 @@ async function processRequest(request){
 			
 			//Создаем массив с данными для продуков
 			let productsArray=[];
-			
-			product_HTML_Element=product_HTML_ElementsArray[0];
 			
 			//На основе массива HTML-объектов заполняем массив с данными для продуктов
 			product_HTML_ElementsArray.forEach((product_HTML_Element)=>{

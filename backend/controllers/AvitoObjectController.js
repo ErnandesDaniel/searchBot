@@ -1,5 +1,5 @@
 
-const Ajv = require("Ajv");
+const Ajv = require("ajv");
 
 const ajv = new Ajv();
 
@@ -281,97 +281,7 @@ class AvitoObjectController{
 					
 		});
 		
-	};	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	/*
-
-
-	//Получить список найденных объектов для купле-продажи
-	async getAll(req, res){
-		
-		let token=req.token;
-			
-		//Получаем декодированный токен пользователя
-		let decodedToken=tokens.getDecodedToken(token);
-			
-		//Получаем id пользователя из токена
-		let id=decodedToken.id;
-		
-		//Получаем объект пользователя по токену
-		let user=await userModel.findOne({where:{id:id}});	
-		
-		//Получаем данные о текущей странице и ее размере
-		const { page, size}=req.query;
-		
-		//Преобразовываем эти данные в данные для SQL-таблицы 
-		const { limit, offset } = pagination.getPagination(page, size);
-		
-		//Получаем список объектов в соответствии с пагинацией
-		let dataFromDatabase=await user.getAvito_Objects({
-			
-			limit:limit,
-			
-			offset:offset,
-			
-			order:[
-			
-				['id', 'DESC'],
-            
-			],
-			
-		});
-		
-		
-		let {
-			
-			totalObjects,
-			
-			objectsInThisPage,
-			
-			totalPages,
-			
-			currentPage,
-			
-		}=pagination.getPagingData(dataFromDatabase, page, limit);
-				
-		res.send({
-					
-			errorExist:false,
-					
-			content:{
-						
-				listOfObjects:listOfMyAvitoObjects,
-				
-				totalObjects,
-			
-				totalPages,
-			
-				currentPage,
-						
-			}
-					
-		});
-		
 	};
-	
-	
-	
-	*/
 	
 }
 
