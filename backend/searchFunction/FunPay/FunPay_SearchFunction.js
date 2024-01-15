@@ -6,6 +6,12 @@ const{
 	
 }=require('../../models/models');
 
+function wait(milliseconds) {
+			
+	return new Promise(resolve => setTimeout(resolve, milliseconds));
+		
+}
+
 //Подключаем файл функции обработки запросов
 const processRequest = require('./processRequest.js');
 
@@ -13,15 +19,17 @@ async function FunPay_SearchFunction(){
 		
 	//Получаем из базы данных все запросы
 	let requestsArray=await FunPay_RequestModel.findAll();
-		
+	
 	//Для каждого запроса выполняем код
 	for(let request of requestsArray){
 			
 		await processRequest(request);
+		
+		await wait(20000);
 			
 	}
 		
-	setTimeout(FunPay_SearchFunction, 10000);
+	setTimeout(FunPay_SearchFunction, 60000);
 		
 	
 }
