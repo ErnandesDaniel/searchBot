@@ -27,7 +27,7 @@
 
       class='descriptionOfData'
 
-      v-if='creationTime!=null'
+      v-if='detectionTime!=null'
 
      >Время обнаружения: {{detectionTime}}</div>
 

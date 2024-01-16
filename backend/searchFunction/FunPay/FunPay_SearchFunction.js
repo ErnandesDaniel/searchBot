@@ -24,12 +24,10 @@ async function FunPay_SearchFunction(){
 	for(let request of requestsArray){
 			
 		await processRequest(request);
-		
-		await wait(20000);
 			
 	}
 		
-	setTimeout(FunPay_SearchFunction, 60000);
+	setTimeout(FunPay_SearchFunction, 10000);
 		
 	
 }

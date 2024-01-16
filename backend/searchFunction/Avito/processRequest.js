@@ -24,7 +24,7 @@ const sendMessage = require('../../TelegramBot/sendMessage.js');
 const { Avito_ObjectModel } = require('../../models/models');
 
 
-async function processRequest(request){
+async function processRequest(request, searchPage){
 	
 	//Получаем массив sequlize-объектов продуктов данного запроса
 	let objectsArray=await request.getAvito_Objects({
@@ -67,12 +67,6 @@ async function processRequest(request){
 				
 			}
 			
-			//Запуск браузера
-			const browser = await chromium.launch({headless:true,});
-			
-			//Откроем страницу
-			const searchPage = await browser.newPage();
-			
 			//Переходим на страницу поиска
 			await searchPage.goto(searchURL,{waitUntil:'domcontentloaded'});
 			
@@ -84,8 +78,6 @@ async function processRequest(request){
 					
 			//Получаем объект документа со всеми DOM моделями
 			let document=searchPageDOM.window.document;
-			
-			await browser.close();
 			
 			return document;
 			

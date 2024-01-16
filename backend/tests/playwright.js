@@ -40,17 +40,26 @@ function getAllHTMLElements(DOM_Object, selector){
 	
 }
 
+let browser=null;
 
-async function testGettingDataFromPage(){
+let searchPage=null;
 
-const searchURL='https://www.avito.ru/sankt-peterburg?q=%D1%84%D0%B0%D1%80%D1%84%D0%BE%D1%80';
+async function testGettingDataFromPage(i){
 
-	//Запуск браузера
-	const browser = await chromium.launch({headless:false,});
-				
-	//Откроем страницу
-	const searchPage = await browser.newPage();
-				
+const searchURL=`https://www.avito.ru/all?q=фарфор&p=${i}&s=104`;
+
+
+	if(browser==null){
+
+		//Запуск браузера
+		browser = await chromium.launch({headless:false,});
+		
+		//Откроем страницу
+		searchPage = await browser.newPage();
+
+	}	
+		
+		
 	//Переходим на страницу поиска
 	await searchPage.goto(searchURL,{waitUntil:'domcontentloaded'});
 				
@@ -96,14 +105,20 @@ const searchURL='https://www.avito.ru/sankt-peterburg?q=%D1%84%D0%B0%D1%80%D1%84
 	
 	console.log(hrefAttribute);	
 	
-	console.log(productPrice);	
+	console.log(productPrice);
+	
+	if(i<3){
+		
+		i++
+		
+		testGettingDataFromPage(i);
+		
+	}
 		
 };
 
 
-testGettingDataFromPage();
-
-
+testGettingDataFromPage(1);
 
 
 
