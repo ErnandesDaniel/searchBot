@@ -12,8 +12,6 @@ const {
 
 }=require('./HTML_Parsing_Functions.js');
 
-const { chromium }=require('playwright');
-
 //Подключаем файл функции обработки запросов
 const getDataFromHTMLObjectOfAvitoProduct = require('./getDataFromHTMLObjectOfAvitoProduct.js');
 
@@ -45,27 +43,30 @@ async function processRequest(request, searchPage){
 	});
 	
 	
-	//Оборачиваем в try, чтобы в случае ошибки программа не останавливалась
-	try{
-		
-		async function getDOMFromURL(page){
+	async function getDOMFromURL(page){
 			
-			let requestText=request.requestText;
+		let requestText=request.requestText;
 		
-			let baseURL='https://www.avito.ru/';
+		let baseURL='https://www.avito.ru/';
 			
+		//Сортировка по дате:&s=104
+		let searchURL=`${baseURL}all?p=${page}&q=${requestText}&s=104`;
+			
+		//Если есть ссылка на категорию, то она позволит уменьшить количество анализируемой продукции
+		if(request.linkWithData!=''){
+			
+			baseURL=request.linkWithData;
+				
 			//Сортировка по дате:&s=104
-			let searchURL=`${baseURL}all?p=${page}&q=${requestText}&s=104`;
-			
-			//Если есть ссылка на категорию, то она позволит уменьшить количество анализируемой продукции
-			if(request.linkWithData!=''){
-			
-				baseURL=request.linkWithData;
+			searchURL=`${baseURL}&p=${page}&s=104`;		
 				
-				//Сортировка по дате:&s=104
-				searchURL=`${baseURL}&p=${page}&s=104`;		
-				
-			}
+		}
+		
+		//Создаем переменную для хранения объекта с данными HTML-страницы
+		let document=null;
+		
+		//Пытаемся получить HTML-код страницы
+		try{
 			
 			//Переходим на страницу поиска
 			await searchPage.goto(searchURL,{waitUntil:'domcontentloaded'});
@@ -77,41 +78,55 @@ async function processRequest(request, searchPage){
 			const searchPageDOM=new JSDOM(searchPageContent);
 					
 			//Получаем объект документа со всеми DOM моделями
-			let document=searchPageDOM.window.document;
+			document=searchPageDOM.window.document;
 			
-			return document;
-			
+		}catch(error) {
+		
+			console.log('Страница не была загружена');
+		
 		}
+			
+		return document;
+			
+	}	
+
+		
+	//Оборачиваем в try, чтобы в случае ошибки программа не останавливалась
+	try{
 		
 		let document=await getDOMFromURL(1);
 		
-		//Получаем HTML элемент страницы с номером последней страницы
-		let lastPageNumber_HTML_Element=getHTMLElement(document, '.styles-module-listItem_last-GI_us>a>span');
-		
-		//Изначально номер последней страницы равен 1
-		let lastPageNumber=1;
-		
-		//Если найден элемент с номером последней страницы, то получаем его
-		if(lastPageNumber_HTML_Element!=null){
+		if(document!=null){
 			
-			//Получаем номер последней страницы как число
-			lastPageNumber=Number(getTextFromHTMLElement(lastPageNumber_HTML_Element));
+			//Получаем HTML элемент страницы с номером последней страницы
+			let lastPageNumber_HTML_Element=getHTMLElement(document, '.styles-module-listItem_last-GI_us>a>span');
 			
-		}
-		
-		//Изначально поиск информации не является завершенным
-		let searchIsCompleted=false;
-		
-		//Переменная содержит максимальное число дней, насколько ранее товар был выложен ранее,
-		//чем сегодняшнее число, чтобы товар был валидный
-		let differenceFromCurrentDay=request.differenceFromCurrentDay;
-		
-		//Число этих дней дожлено быть как нимимум равно 1
-		if(differenceFromCurrentDay<1){
-						
-			differenceFromCurrentDay=1;
-						
-		}
+			//Изначально номер последней страницы равен 1
+			let lastPageNumber=1;
+			
+			//Если найден элемент с номером последней страницы, то получаем его
+			if(lastPageNumber_HTML_Element!=null){
+				
+				//Получаем номер последней страницы как число
+				lastPageNumber=Number(getTextFromHTMLElement(lastPageNumber_HTML_Element));
+				
+			}
+			
+			//Изначально поиск информации не является завершенным
+			let searchIsCompleted=false;
+			
+			//Переменная содержит максимальное число дней, насколько ранее товар был выложен ранее,
+			//чем сегодняшнее число, чтобы товар был валидный
+			let differenceFromCurrentDay=request.differenceFromCurrentDay;
+			
+			//Число этих дней дожлено быть как нимимум равно 1
+			if(differenceFromCurrentDay<1){
+							
+				differenceFromCurrentDay=1;
+							
+			}
+			
+			
 		
 		//Функция для анализа и записи данных в базу данных
 		async function recordingData(document){
@@ -261,32 +276,35 @@ async function processRequest(request, searchPage){
 				
 			}	
 				
-		}
+		}			
 		
-		//Если страниц больше 1, то анализируем их все
-		if(lastPageNumber>1){
 			
-			//Получение и запись данных из текущего объекта документа
-			await recordingData(document);
-			
-			//Переходим по всем страницам до полученного максимального числа
-			for(let i=2; i<=lastPageNumber && searchIsCompleted==false; i++){
-			
-				//Получение объекта документа страницы сайта
-				let document=await getDOMFromURL(i);	
+			//Если страниц больше 1, то анализируем их все
+			if(lastPageNumber>1){
 				
-				//Получение и запись данных из объекта документа	
+				//Получение и запись данных из текущего объекта документа
 				await recordingData(document);
+				
+				//Переходим по всем страницам до полученного максимального числа
+				for(let i=2; i<=lastPageNumber && searchIsCompleted==false; i++){
+				
+					//Получение объекта документа страницы сайта
+					let document=await getDOMFromURL(i);	
+					
+					//Получение и запись данных из объекта документа	
+					await recordingData(document);
+				
+				}	
+				
+			}else{
+				
+				//Получение и запись данных из объекта документа
+				await recordingData(document);
+				
+			}
 			
-			}	
-			
-		}else{
-			
-			//Получение и запись данных из объекта документа
-			await recordingData(document);
 			
 		}
-		
 		
 	}catch (error) {
 		
