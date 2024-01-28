@@ -26,6 +26,7 @@
     "playwright": "^1.40.1",
     "pm2": "^5.3.0",
     "sequelize": "^6.32.1",
+    "socks-proxy-agent": "^8.0.2",
     "telegraf": "^4.15.3",
     "vue-pwa-asset-generator": "^1.7.3"
   },

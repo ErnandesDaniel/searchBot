@@ -1,2 +1,2 @@
 cd backend
-pm2 start app.js
+pm2 start ecosystem.config.js
